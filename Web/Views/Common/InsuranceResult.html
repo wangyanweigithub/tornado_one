@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Insurance info</title>
+</head>
+<body>
+    {% if len(params.get('insurance',[])) > 0 %}
+        <div id="insurance">
+            {% for item in params.get('insurance',[]) %}
+            <p> {{ item.title }} </p>
+            <p> {{ item.content }} </p>
+            {% end %}
+        </div>
+
+    {% else %}
+        <div>没有保险记录信息</div>
+    {% end %}
+</div>
+
+</body>
+</html>

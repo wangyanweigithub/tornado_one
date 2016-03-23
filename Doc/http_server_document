@@ -1,0 +1,813 @@
+## 一、通用部分
+API 基地址: http://www.test_server.com/api/action
+
+请求形式: POST
+
+请求和返回的数据格式都是json格式。
+
+###通用请求参数
+* source (int): 来源，默认0（web），100（iOS），200（android）。
+* time (string): 时间，python格式:'%Y%m%d%H%M%S%f'
+* lang (string): 语言，默认zh_CN。
+* params (string): params是下文中所称的参数，开发者组成json格式的字符串，然后进行		base64编码，赋给params。——需要加密
+* sign (string): 验证请求是否违法，算法见下文。
+* version (string): 版本号，如"1.0.0"
+* device-udid (string): 设备唯一id，如"3432847jhdfsdf227737"
+
+###通用返回参数
+成功返回
+
+```
+{
+			"code"(int): 200,
+			"source"(int): 0,
+			"time"(string): "20140903223949435431",
+			"lang"(string): "zh_CN",
+			"value"(json): {},
+			"sign"(string): "44d32f3a6da17bce2245cc243f2362cf",
+			"version"(string): "3.0.0",
+			"device-udid"(string): "设备唯一标识"
+}
+```
+	
+失败返回参数
+
+```
+{
+	   	"code"(int): 400,
+		"source"(int): 0,
+		"time"(string): "20140903223949435431",
+		"lang"(string): "zh_CN",
+		"message"(string): "message",
+		"sign"(string): "44d32f3a6da17bce2245cc243f2362cf",
+		"version"(string): "3.0.0",
+		"device-udid"(string): "设备唯一标识"	
+}
+```
+加密串:
+
+sign算法: MD5(params+time+加密串)，其中，params是加密过的字符串。
+
+params:加密，JSON序列化一下成为字符串——>Base64前10个字符串和尾部10个字符串进行交换
+
+成功和失败返回的区别是，1、code值不同。2、成功返回有value字段，失败返回有message值。value是字典，message是字符串。
+
+##二、手机端API
+
+### 1
+url = http://www.baidu.com/api/action/authcode
+### 1.1 获取验证码:
+####参数（params）：
+* method: get_authcode
+* mobile_phone(int): 用户手机
+* authcode_type(int): 验证码类型
+   
+```		注册
+		register ＝ 400
+		登录
+		login = 100    					  	   
+		充值    
+		transaction = 200   
+		提现验证码   
+		withdraw = 300
+		#忘记密码
+      forget_password = 500    
+```
+####返回
+成功
+
+```
+code:200,
+value: {}
+
+```
+失败
+
+```
+code: 400,
+message: '发送短信失败，请保证输入号码正确，再次尝试'
+```
+
+### 2
+url = http://www.test_server.com/api/action/member
+### 2.1 注册用户:
+####参数
+* method:create_member
+* mobile_phone:手机号码
+* password_md5:登录密码，md5以后传到后台
+* device_token:
+* auth_code:验证码
+* source_from_description:请求来源描述
+
+####返回：
+成功
+
+```
+code: 200,
+value: {
+	access:{
+		 member_type 
+	    #记录的 Member ID
+	    member_id 
+	    #登录授权凭证
+	    access_token 
+	    #请求来源
+	    source_from 
+	    #请求来源说明
+	    source_from_description 
+	    #设备推送唯一标识
+	    device_token 
+	    #创建时间
+	    create_time 
+	    #更新时间
+	    update_time 
+	    #来源 ip
+	    from_ip 
+	    #来源 ip 请求次数
+	    visit_ip_count 
+	    #客户端标识
+	    agent_from 
+	    #是否删除
+	    deleted 
+	    }
+	member:{
+		#手机号码
+	    mobile_phone 
+	    #密码md5
+	    password_md5
+	    #账户余额
+	    money 
+	    #支付密码
+	    pay_password_md5 
+	
+	    #创建时间
+	    create_time 
+	    #最后登录时间
+	    last_login_time 
+	    #是否被冻结
+	    disabled 
+	    #账户状态, 当出现问题的时候用来反馈
+	    status 
+	    #是否被删除
+	    deleted 
+	}
+	
+	}
+```
+
+###2.2 普通登录
+####参数(params):
+* method:login
+* mobile_phone(int):  手机号码
+* passwrod_md5:  用户密码md5 后的字符串
+
+####返回：
+成功
+
+```
+code: 200,
+value: {
+			access_token:'rwerwerwerwer',
+			money:23423.23
+			mobile_phone:1233412324234
+	}
+```
+失败
+
+```
+code: 错误代码
+message:'手机号码或验证码错误'
+```
+
+###2.3 快捷登录
+####参数(params): 
+* method:login 注：快捷登录和普通登录是同一个方法，只不过参数不同
+* mobile_phone(str):  手机号码
+* authcode验证码(string):  234123
+
+####返回：
+成功
+
+```
+code: 200,
+value: {
+			access_token:'rwerwerwerwer',
+			money:23423.23
+			mobile_phone:1233412324234
+	}
+```
+失败
+
+```
+code: 错误代码
+message:'手机号码或验证码错误'
+```
+
+###2.4 忘记密码
+####参数(params):
+* method:forget_password
+* code_type:忘记密码类型
+* mobile_phone:手机号
+* auth_code:验证码
+* password_md5:新密码
+
+成功....（没有返回信息，code是200）
+失败....
+
+###2.5 更改用户信息
+####参数（params）
+* method: change_userinfo
+* access_token
+* key：［'password_md5','pay_password_md5','mobile_phone'］，key只能取这三个值之一，其他属性不能修改。
+* value：修改的新值
+* password_md5:密码的md5
+
+成功....（没有返回信息，code是200）
+失败....
+
+###2.6 个人中心
+* method:personal_center
+* access_token
+
+成功
+
+```
+value:{
+			"mobile_phone":,
+			"money":""
+}
+```
+失败 
+
+ ```
+ 无
+ ```
+
+### 3
+url = http://www.test_server.com/api/action/insurance
+###3.1 获取保险公司列表
+####参数(params):
+* method:get_insurance_company_list
+* access_token:
+
+成功
+
+```
+value:{
+		[
+			{
+			 "title":"平安保险",
+			 "money":50,
+			 "url":"www.baidu.com",
+			 ...
+			},
+			
+			{...},
+			
+		]
+			
+}
+```
+失败 
+
+ ```
+ 无
+ ```
+ 
+###3.2 保险查询
+####参数(params):
+* method:insurance_query
+* access_token:
+* company_id:保险公司id
+* policy_no:保单号
+* identify_no: 身份证号码
+* remarks:备注
+
+成功
+
+```
+无
+```
+失败 
+
+ ```
+ 无
+ ```
+ 
+###3.3 保险查询记录
+* method:insurance_record_list
+* access_token:
+
+成功
+
+```
+value:{
+		[
+			{
+			 #客户id
+		    member_id 
+		    #保险公司id
+		    company_id 
+		    #保险公司名称
+		    company_title 
+		    #保单号
+		    policy_no 
+		    #身份证号
+		    identify_no 
+		    #某些需要验证码的保险公司，最新版不需要
+		    verify_code 
+		    # 查询状态
+		    status 
+		    # 订单创建日期
+		    create_time
+		    # 备注
+		    remark 
+		    #有无理赔 0没有理赔，1有理赔
+    		claim_status 
+			},
+			
+			{...},
+			
+		]
+			
+}
+```
+失败 
+
+ ```
+ 无
+ ```
+ 
+###3.4 保单基本信息
+
+* method:insurance_order_detail
+* access_token
+* order_id
+注意：用GET方法
+成功
+
+```
+html页面
+```
+失败
+
+ ```
+ 无
+ ```
+ 
+###3.5 理赔信息
+* method: payment_of_claims_info
+* order_id:
+* access_token:
+注意：用GET方法
+成功
+
+```
+html页面
+```
+失败 
+
+ ```
+ 无
+ ```
+
+### 4 
+url = http://www.test_server.com/api/action/maintenance
+###4.1 获取车辆品牌
+####参数(params):
+* method:get_brand_list
+* access_token:
+
+成功
+
+```
+{
+    "value":[
+    {
+    "car_brand_id":1,
+    "car_brand":"宝马",
+    "money":29,
+    "children":[
+            {
+                "car_brand_id":1,
+                "car_brand":"宝马",
+                "money":29
+            },
+            {...}
+        ]   
+    },
+    {...}
+    ]
+}
+
+```
+失败无
+
+###4.2 保养查询订单提交
+####参数(params):
+* method:submit_maintenance_order
+* brand_id(int):车辆品牌id
+* remarks: 备注
+* access_token:
+* files （驾驶证或车辆铭牌照片）:上传图片（这个参数不是在params里）
+
+```
+{	
+	"params":{
+			"method":"submit_maintenance_order",
+			"remarks":"第一次",
+			"brand_id":1,
+			"access_token":"alskdjflasf",
+		}
+}
+```
+返回：
+
+```
+无，由客服人员查询，一般30分钟内，得出查询结果。这时会改变订单状态
+```
+
+###4.3 用户查询订单记录
+####参数(params):
+* method:get_maintenance_list
+* access_token:
+* status、remarks、brand 可选参数，这三个任选一个参数可以过滤结果，如输入brand＝1，则筛选出brand是1的订单记录。如果没有这三个参数，则输出所有订单。
+
+成功
+
+```
+value:{
+		[
+			{
+			
+				#用户id
+			    member_id 
+			    #车辆品牌id
+			    brand_id 
+			    #车辆品牌
+			    brand_title 
+			    #上传image类型，如果是上传图片则为‘url’，如果是vin，则等于‘vin’
+			    image_type 
+			    #上传行驶证或车辆铭牌照片
+			    id_image_url 
+			    #订单状态
+			    status 
+			    #发动机号
+			    engine_number 
+			    #订单创建时间
+			    create_time 
+			    #备注信息
+			    remark 
+			    #大圣来了异步返回的保养查询结果
+			    result 
+			
+			},
+			
+			{...},
+			
+		]
+			
+}
+```
+失败 
+
+ ```
+ 无
+ ```
+ 
+###4.4 保养查询成功详情
+####参数(params):
+* method:maintenance_record_detail
+* access_token:
+* order_id:
+
+成功
+
+{"error_code":"","response":"我们会在上班后尽快将报告发送给您，\r\n\r\n查询结果请在保养记录中查看 。"}
+```
+value:{
+		[
+			{
+			
+				#通知时间
+			    notify_time 
+			    #通知类型
+			    notify_type 
+			    #通知校验 ID
+			    notify_id 
+			    #合作伙伴订单号
+			    order_id 
+			    #签名方式
+			    sign_type 
+			    #签名
+			    sign 
+			
+			    #业务参数
+			    #最后到店时间
+			    last_time_to_shop 
+			    #公里数
+			    total_mileage 
+			    #事故次数
+			    number_of_accidents 
+			    #车型品牌 ID
+			    car_brand_id 
+			    #车型品牌名称
+			    car_brand 
+			    #结果描述
+			    result_description
+			    #结果图片
+			    result_image 
+			    #查询结果
+			    result_status 
+			    #订单创建时间
+			    gmt_create 
+			    #订单完成时间
+			    gmt_finish 
+			
+			},
+			
+			{...},
+			
+		]
+			
+}
+```
+失败 
+
+ ```
+ 无
+ ```
+ 
+### 5
+url = http://www.test_server.com/api/action/maintenance
+###5.1 获取所有城市缩写
+* method: get_all_city_list
+* access_token:
+
+成功
+
+```
+value:{
+			['京','暨','川'......]
+		
+}
+```
+失败 
+
+ ```
+ 无
+ ```
+ 
+###5.2 获取所有汽车类型
+* method:get_car_type_list
+* access_token
+
+成功
+
+```
+value:{
+		[
+			{
+			    "_id" : ObjectId("56c1320be08392087648493a"),
+			    "value" : "01",
+			    "type" : "大型汽车"
+			},
+			{...},
+		]
+		
+}
+```
+失败 
+
+ ```
+ 无
+ ```
+ 
+###5.3 违章查询
+* method: query
+* access_token:
+* 车牌号：license_plate
+* 车架号：vin
+* 发动机号：enginenumber
+* 车辆类型的序号：car_type_value：
+* 选择线路：type (100、200、300，代表三条线路，未来会实现三条查询线路,目前只有type＝100)
+
+
+成功
+
+```
+无
+```
+失败 
+
+ ```
+ 无
+ ```
+ 
+###5.4 违章查询返回结果显示有验证码
+
+如果有验证码，5.3函数返回的结果是：
+img_url
+post_verify_code_cookie
+status
+post_verify_code_url
+post_verify_code_header
+order_id
+notice = '有验证码，请输入验证码'
+
+
+继续调用5.4方法
+* method: has_verify_code
+* access_token:
+* code：验证码
+* post_verify_code_url：第20返回的结果
+* post_verify_code_header：第20返回的结果
+* post_verify_code_cookie：第20返回的结果
+* order_id ：第20返回的结果
+* 选择线路：type (100、200、300，代表三条线路，未来会实现三条查询线路)
+
+
+成功
+
+```
+无
+```
+失败
+
+ ```
+ 无
+ ```
+###5.5 违章查询记录列表
+* method: query_order_list
+* access_token:
+
+成功
+
+```
+value:{
+			[
+				{
+					"city_name":"北京",
+					"engine_num":"",
+					"frame_number":"",
+					"plate_number":"",
+					"order_id":""
+				},
+				
+				{....},
+			]
+		
+}
+```
+失败 
+
+ ```
+ 无
+ ```
+###5.6 违章查询结果详情
+* method: query_violation
+* access_token:
+* order_id:
+
+成功
+
+```
+value:{
+			[
+				{	
+					peccancy_time：违章时间
+					violation_behavior:违章行为
+					Illegal deduction：违章扣分
+					peccancy_penalty:违章罚款，
+				},
+				
+				{....},
+			]
+		
+}
+```
+失败 
+
+ ```
+ 无
+ ```
+ 
+###5.7 获取用户所有的违章订单的扣分总数和扣款总数
+* method:query_total_weizhang
+* access_token
+* order_id
+成功
+
+```
+value:{
+			license_plate='sadfa',
+			weizhangnum=3,
+			fen=4,
+			money=400
+}
+```
+失败 
+
+ ```
+ 无
+ ```
+
+###6
+url = http://www.test_server.com/api/action/personcenter
+###6.1 版本信息
+
+* method:get_version_update
+* access_token
+* version
+
+成功
+```
+如果已经是最新版本：
+value:{
+	version
+	}
+如果不是最新版本
+value:{
+		version,
+		url
+}
+```
+失败 
+
+ ```
+ ```
+###6.2 用户协议及软件许可
+* method:get_user_agreement
+* access_token
+注：此方法用get方法
+
+成功
+
+```
+html 页面
+```
+失败 
+
+ ```
+ 无
+ ```
+
+###6.3 意见反馈
+* method:commit_advice
+* content:反馈内容
+* access_token
+* contactinformation：联系方式
+
+成功
+
+ ```
+ 无
+ ```
+失败 
+
+ ```
+ 无
+ ```
+
+### 未完成任务：
+一：支付相关接口
+二：违章查询需要三个网站备用，现在已经完成一个，还需要两个网站备用。
+
+### 服务器上大圣来了保养查询结果异步返回服务器
+url = 'http://www.test_server.com/dasheng'
+post方法访问
+此方法在Controller/Main/DaShengNotifyController.py中。
+
+大圣来了传过来的参数：
+params:
+	#通知时间
+    notify_time
+    #通知类型
+    notify_type
+    #通知校验 ID
+    notify_id
+    #合作伙伴订单号
+    order_id
+    #签名方式
+    sign_type
+    #签名
+    sign
+
+    #业务参数
+    #最后到店时间
+    last_time_to_shop
+    #公里数
+    total_mileage
+    #事故次数
+    number_of_accidents
+    #车型品牌 ID
+    car_brand_id
+    #车型品牌名称
+    car_brand
+    #结果描述
+    result_description
+    #结果图片
+    result_image
+    #查询结果
+    result_status
+

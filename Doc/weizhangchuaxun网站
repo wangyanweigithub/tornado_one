@@ -1,0 +1,83 @@
+全国机动车查询系统：http://chaxun.weizhang8.cn
+违章服务网：http://www.weizhang8.cn/
+http://www.weizhang.co/
+http://www.weizhangwang.com/
+http://www.7940.com/
+http://www.hzti.com/service/qry/violation_veh.aspx?type=2&node=249#
+
+
+杭州交通信息网，违章查询：http://www.hzti.com/service/qry/veh_info.aspx?type=2&node=157
+浙江政务服务网，全省机动车非现场违法查询：http://www.zjsgat.gov.cn:8080/was/portals/car_lllegal_query.jsp
+
+查询1:   车牌号：      浙B2MW62             youweizhang
+         车架号：      LVSFDFAB5AN152591
+         发动机号：    3207015
+
+
+    2.               浙F583GQ
+                     LSGSA52M1AY141394
+                     A52420215
+
+    3.              浙F4198T
+                    LFPM4ACC9C1A97587
+                    80511881
+
+    4.              浙B598B0                    youweizhang
+                    LS5A2ABE2DA109330
+                    DC4J005838
+
+    5.              浙BZ589X
+                    LSVAC2189C2106027
+                    267185
+
+
+    6.              闽GU6020
+                    LBVCU3108DSH18195
+                    0538D144
+
+    7.              闽GAP820
+                    LSGJA52U29H058032
+                    93300629
+
+    8.              浙F858LN
+                    LBEMDAEC7FZ631313
+                    FB720289
+
+    9.              浙F0700B
+                    LHGCP264X98005192
+                    8905190
+
+    10.             浙C7302J
+                    LSVFB66R1B2113635
+                    M01659
+
+    11.
+
+1、杭州交通违章官网数据最准确，但是不包括全国。
+2、www.weizhangwang.com  包括全国，信息没有杭州交通违章官网准确。由多个备用查询线路，可以用不同线路查询。
+3、www.weizhang8.cn      和www.weizhangwang.com 一样，也有多个线路可以查询。
+2和3 如果没有查询到结果可以跳转到对应城市交管局违章查询平台。
+
+4、http://www.ip138.com/weizhang.htm 全国车辆交通违章查询表，可以跳到各市交管局
+
+
+
+把这三个网站做成接口，接入CarMirror
+
+1.验证码识别
+2.生成表单
+3.分析结果
+
+
+www.weizhangwang.com
+Set-Cookie: SERVERID=4b086e0a359fc1b9d687eeae03591257|1454312665|1454312665;Path=/
+static.weizhangwang.com
+
+
+
+query.weizhang8.cn
+
+
+
+static.weizhang8.cn
+

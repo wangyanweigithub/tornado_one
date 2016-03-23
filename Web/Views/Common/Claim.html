@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>claim info</title>
+</head>
+<body>
+    {% if len(params.get('claim',[])) > 0 %}
+        {% for item in params.get('claim',[]) %}
+        <p> {{ item.title }} </p>
+        <p> {{ item.content }} </p>
+        {% end %}
+    {% else %}
+        <div>这个保单没有理赔信息</div>
+    {% end %}
+
+</body>
+</html>
